@@ -1,13 +1,8 @@
-// This is JUnit test program stub
-// DO NOT CHANGE THE NAME OF THE METHODS GIVEN
-// 0) test0 is by the instructor as example to test your validate() method
-// 1) You are to reproduce testing validate() method with test1.html-test8.html and
-//    match the expected output
-// 2) You are to add your own JUnit test for testing your removeAll method (At least 4)
-// 3) Feel free to add more test cases to test any of your public methods in HtmlValidator (No extra credit, but for your own benefit)
 
 import org.junit.Assert;
 import org.junit.Test;
+
+import org.junit.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
