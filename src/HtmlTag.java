@@ -1,5 +1,3 @@
-// EGR 221, Homework 1: HTML Validator
-// Instructor-provided code.  You should not modify this file!
 
 import java.util.Arrays;
 import java.util.HashSet;

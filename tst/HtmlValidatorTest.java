@@ -2,12 +2,18 @@
 import org.junit.Assert;
 import org.junit.Test;
 
+//newly added library
 import org.junit.*;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import nio.file.*;
 
+import javax.xml.validation.Validator;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
+import java.nio.file.Files;
 import java.util.*;
 
 public class HtmlValidatorTest {
@@ -21,17 +27,21 @@ public class HtmlValidatorTest {
      *                         expectedFileName should be "tst/YOUR_FILE_NAME"
      * @return The String format of what the expectedFileName contains
      */
-    private static String expectedOutputToString (String expectedFileName) {
-        StringBuilder sb = new StringBuilder();
-        try {
-            Scanner fileScanner = new Scanner(new File(expectedFileName));
-            while (fileScanner.hasNextLine()) {
-                sb.append(fileScanner.nextLine()+ System.lineSeparator());
-            }
-        } catch (FileNotFoundException ex) {
-            Assert.fail(expectedFileName + "not found. Make sure this file exists. Use relative path to root in front of the file name");
-        }
-        return sb.toString();
+
+    private static final String EXPECTED_TEMPLATE = "expected_output/expected_output_for_test%d.txt";
+
+    private static void testAgainstFiles(int testNumber) {
+        testValidatorWithFiles(String.format(EXPECTED_TEMPLATE, testNumber), String.format(INPUT_TEMPLATE, testNumber));
+    }
+
+    private static void testValidatorWithFiles(String expectedOutputFilePath, String validatorInputFilePath) {
+        String rawInput = dumpFileContentsToString(ValidatorInputFilePath);
+        String expected = dumpFileContentsToString(expectedOutputFilePath);
+        HtmlValidator validator = new HtmlValidator(HtmlTag.tokenize(rawInput));
+
+        String validatorOutput = captureValidatorOutput(validator);
+
+        Assert.assertEquals("Validator output must match expected value", expected, validatorOutput);
     }
 
     /** Below code returns the String format
@@ -40,16 +50,44 @@ public class HtmlValidatorTest {
      * @param validator HtmlValidator to test
      * @return String format of what HtmlValidator's validate outputs
      */
-    private static String validatorOutputToString(HtmlValidator validator) {
+    Private static String captureValidatorOutput(HtmlValidator validator) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         PrintStream ps = new PrintStream(baos);
         PrintStream oldOut = System.out;
         System.setOut(ps);
+
         validator.validate();
+
         System.out.flush();
         System.setOut(oldOut);
         return baos.toString();
     }
+
+    private static String dumpFileContentsToString(String filepath) {
+        try {
+            return new String(Files.readAllBytes(Paths.get(filepath)), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            Assert.fail("Could not load file: " + filepath);
+            return null;
+        }
+    }
+
+
+
+    /** Set expectedFileName to src/HtmlValidatorTest
+    private static String expectedOutputToString (String src/HtmlValidatorTest) {
+        StringBuilder sb = new StringBuilder();
+        try {
+            Scanner fileScanner = new Scanner(new File(src/HtmlValidatorTest));
+            while (fileScanner.hasNextLine()) {
+                sb.append(fileScanner.nextLine()+ System.lineSeparator());
+            }
+        } catch (FileNotFoundException ex) {
+            Assert.fail(src/HtmlValidatorTest + "not found. Make sure this file exists. Use relative path to root in front of the file name");
+        }
+        return sb.toString();
+    }
+    */
 
     /**
      * This test is an instructor given test case to show you some example
@@ -77,7 +115,7 @@ public class HtmlValidatorTest {
      */
 	@Test
 	public void test1(){
-
+        testAgainstFiles(1);
 	}
 
     /**
@@ -87,7 +125,7 @@ public class HtmlValidatorTest {
      */
 	@Test
 	public void test2(){
-
+        testAgainstFiles(2);
 	}
 
 
@@ -98,7 +136,7 @@ public class HtmlValidatorTest {
      */
 	@Test
 	public void test3(){
-
+        testAgainstFiles(3);
 	}
 
 
@@ -109,7 +147,7 @@ public class HtmlValidatorTest {
      */
 	@Test
 	public void test4(){
-
+        testAgainstFiles(4);
 	}
 
     /**
@@ -119,7 +157,7 @@ public class HtmlValidatorTest {
      */
 	@Test
 	public void test5(){
-
+        testAgainstFiles(5);
 	}
 
     /**
@@ -129,7 +167,7 @@ public class HtmlValidatorTest {
      */
 	@Test
 	public void test6(){
-
+        testAgainstFiles(6);
 	}
 
     /**
@@ -139,7 +177,7 @@ public class HtmlValidatorTest {
      */
 	@Test
 	public void test7(){
-
+        testAgainstFiles(7);
 	}
 
     /**
@@ -149,44 +187,64 @@ public class HtmlValidatorTest {
      */
 	@Test
 	public void test8(){
-
-	}
-
-	/**
-	 * Add your own test to test your removeAll method
-	 * Add your own comment here:
-	 */
-	@Test
-	public void myRemoveAllTest1(){
-
-	}
-
-	/**
-	 * Add your own test to test your removeAll method
-	 * Add your own comment here:
-	 */
-	@Test
-	public void myRemoveAllTest2(){
-
-	}
-
-	/**
-	 * Add your own test to test your removeAll method
-	 * Add your own comment here:
-	 */
-	@Test
-	public void myRemoveAllTest3(){
-
+        testAgainstFiles(8);
 	}
 
     /**
-     * Add your own test to test your removeAll method
-     * Add your own comment here:
+     * Add your own test to test your addTagTest method
+     * Add your own comment here: Code with using Hints
      */
     @Test
-    public void myRemoveAllTest4(){
+    public void addTagTest(){
+        HtmlTag[] tagsArr = {new HtmlTag("Hello"), new HtmlTag("There")};
+        List<HtmlTag> tags = new ArrayList<>(Arrays.asList(tagsArr));
+        HtmlValidator validator = new HtmlValidator();
 
+        tags.forEach(validator::addTag);
+
+        Assert.assertEquals(tags, validator.getTags());
     }
 
-    //FEEL FREE TO ADD MORE TESTS HERE
+    /**
+     * Add your own test to test your addNullTagTest method
+     * Add your own comment here:Code with using Hints
+     */
+    @Test (expected = IllegalArgumentException.class)
+    public void addNullTagTest() {
+        HtmlValidator validator = new HtmlValidator();
+        validator.addTag(null);
+    }
+	/**
+	 * Add your own test to test your removeAll method
+	 * Add your own comment here: Code with using Hints
+	 */
+	@Test
+	public void myRemoveAllTest1(){
+        HtmlTag[] tageArr = {new HtmlTag("Hello"), new HtmlTag("There")};
+        List<HtmlTag> tags = new ArrayList<>(Arrays.asList(tagsArr));
+        HtmlValidator validator = new HtmlValidator();
+        tags.forEach(validator::addTag);
+        validator.addTag(new HtmlTag("General Kenobi"));
+
+        validator.removeAll("General Kenobi");
+
+        Assert.assertEquals(tags, validator.getTags());
+
+	}
+
+
+
+
+
+    /**
+     * Add your own test to test your removeAllNullTest method
+     * Add your own comment here:Code with using Hints
+     */
+    @Test (expected = IllegalArgumentException.class) {
+        public void removeAllNullTest() {
+            HtmlValidator validator = new HtmlValidator();
+
+            Validator.removeAll(null);
+        }
+    }
 }
